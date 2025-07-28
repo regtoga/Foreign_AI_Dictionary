@@ -45,8 +45,31 @@ def store_definition(word, definition, language, conn):
             VALUES (?, ?)
         ''', (word, definition))
 
+def process_file(file_path, language, conn):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        for line in file:
+            word = line.strip()
+            if not word:
+                continue
+
+            print(f"Processing word: {word}")
+            definition = get_definition(word, language, conn)
+            
+            if definition:
+                print(f"Definition already exists: {definition}")
+                continue
+            
+            context = f"Imagine you are a Dictionary that defines a word in as few sentences as possible from the language: {language}. If not English for example Chinese please explain the logograms, to an English speaker (if not english explain). Do not ask follow up questions and if the word the user provided has a meaning at all dont 'correct' it to something else. If the user provided something that doesn't mean anything to you respond with 'That didnt make since, please provide more context'. Define:"
+            full_prompt = f"{context} {word}"
+            definition = run_ollama(full_prompt)
+            
+            if definition:
+                print(f"Definition: {definition}")
+                store_definition(word, definition, language, conn)
+            else:
+                print("Failed to retrieve definition.")
+
 def main():
-    # Ensure the database is stored in the same directory as the script
     default_output_dir = os.path.dirname(os.path.abspath(__file__))
     database_path = os.path.join(default_output_dir, 'definitions.db')
     
@@ -55,31 +78,40 @@ def main():
     create_table(current_language, conn)
 
     while True:
-        user_input = input("Enter a word to define or '/switch LANGUAGE': ").strip()
+        user_input = input("Enter a word to define, '/switch LANGUAGE', or '/file FILENAME': ").strip()
         
         if user_input.startswith('/switch'):
             current_language = user_input.split(' ', 1)[1]
             print(f"Switched to {current_language}")
             create_table(current_language, conn)
-            continue
         
-        definition = get_definition(user_input, current_language, conn)
+        elif user_input.startswith('/file'):
+            file_name = user_input.split(' ', 1)[1]
+            file_path = os.path.join(default_output_dir, file_name)
+            if os.path.exists(file_path):
+                process_file(file_path, current_language, conn)
+            else:
+                print(f"File {file_name} not found.")
         
-        if definition:
-            print(f"Definition found: {definition}")
-            redefine = input("Do you want to redefine it? (yes/no): ").strip().lower()
-            if redefine != 'yes':
-                continue
-        
-        context = f"Imagine you are a Dictionary that defines a word in as few sentences as possible from the language: {current_language}. If not English for example Chinese please explain the logograms, to an English speaker (if not english explain). Do not ask follow up questions. Define: "
-        full_prompt = f"{context} {user_input}"
-        definition = run_ollama(full_prompt)
-        
-        if definition:
-            print(f"Definition: {definition}")
-            store_definition(user_input, definition, current_language, conn)
         else:
-            print("Failed to retrieve definition.")
+            word = user_input
+            definition = get_definition(word, current_language, conn)
             
+            if definition:
+                print(f"Definition found: {definition}")
+                redefine = input("Do you want to redefine it? (yes/no): ").strip().lower()
+                if redefine != 'yes':
+                    continue
+            
+            context = f"Imagine you are a Dictionary that defines a word in as few sentences as possible from the language: {current_language}. If not English for example Chinese please explain the logograms, to an English speaker (if not english explain). Do not ask follow up questions."
+            full_prompt = f"{context} {word}"
+            definition = run_ollama(full_prompt)
+            
+            if definition:
+                print(f"Definition: {definition}")
+                store_definition(word, definition, current_language, conn)
+            else:
+                print("Failed to retrieve definition.")
+
 if __name__ == "__main__":
     main()
