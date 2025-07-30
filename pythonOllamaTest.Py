@@ -103,7 +103,7 @@ def main():
     root = tk.Tk()
     root.title("Dictionary Processor")
 
-    conn = sqlite3.connect('definitions.db')
+    conn = sqlite3.connect('Word_Definitions.db')
     db_queue = asyncio.Queue()
 
     language_var = tk.StringVar(value="English")
