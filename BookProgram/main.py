@@ -29,8 +29,16 @@ class MainApp:
     def open_story_prompt(self):
         filepath = filedialog.askopenfilename(filetypes=[("Text files", "*.txt")])
         if filepath:
-            with open(filepath, encoding='utf-8') as file:
-                story_content = file.read()
+            try:
+                with open(filepath, encoding='utf-8') as file:
+                    story_content = file.read()
+            except UnicodeDecodeError:
+                try:
+                    with open(filepath, encoding='shift_jis') as file:  # Common for Japanese text
+                        story_content = file.read()
+                except UnicodeDecodeError:
+                    messagebox.showerror("Error", "Couldn't read the file. Unsupported encoding.")
+                    return
             default_name = ' '.join(story_content.split()[:3])
             story_id = self.db_handler.insert_story(default_name, story_content)
             self.open_story_window(story_id)

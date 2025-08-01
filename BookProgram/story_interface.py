@@ -1,4 +1,5 @@
 import tkinter as tk
+import threading
 from ai_handler import AIHandler
 from db_handler import DatabaseHandler
 
@@ -11,14 +12,16 @@ class StoryInterface:
         self.story_content = self.db_handler.get_story_content(story_id)
         self.title = self.db_handler.get_story_title(story_id)
 
-        self.setup_ui()
-        self.pages = self.paginate_story(self.story_content)
+        self.pages = []  # Initialize pages as an empty list
         self.current_page = 0
-        self.display_page(self.current_page)
 
-        self.parent.protocol("WM_DELETE_WINDOW", self.save_and_exit)
+        self.setup_ui()
+        # Start processing in the background
+        threading.Thread(target=self.process_large_file, args=(self.story_content,)).start()
 
     def setup_ui(self):
+        self.temp_text_widget = tk.Text(self.parent, wrap=tk.WORD)
+
         top_frame = tk.Frame(self.parent)
         top_frame.pack(fill=tk.X)
 
@@ -60,49 +63,55 @@ class StoryInterface:
         content = self.user_text.get("1.0", tk.END).strip()
         self.db_handler.save_user_progress(self.story_id, content)
 
+    import threading
+
     def paginate_story(self, content):
-        words = content.split()
-        pages = []
-        current_page = []
-        max_lines = 30
-        current_line = 0
+        # Similar to existing function, with threading to handle large files
+        threading.Thread(target=self.process_large_file, args=(content,)).start()
 
-        for word in words:
-            potential_line = ' '.join(current_page + [word])
-            self.story_text.delete(1.0, tk.END)
-            self.story_text.insert(tk.END, potential_line)
-            if int(self.story_text.index('end-1c').split('.')[0]) < max_lines:
-                current_page.append(word)
-            else:
-                pages.append(' '.join(current_page))
-                current_page = [word]
-                current_line = 0
-        if current_page:
-            pages.append(' '.join(current_page))
+    def process_large_file(self, content):
+        def process_chunks():
+            pages = []
+            current_page = []
+            lines = content.splitlines()
+            max_lines = 60
 
-        return pages
+            for line in lines:
+                potential_page = current_page + [line]
 
-    def display_page(self, page_number):
-        # Display story text
-        self.story_text.delete(1.0, tk.END)
-        self.story_text.insert(tk.END, self.pages[page_number].strip())
+                # Ensuring not to block the main thread with UI updates
+                self.temp_text_widget.delete("1.0", tk.END)
+                self.temp_text_widget.insert(tk.END, "\n".join(potential_page))
 
-        # Display user progress
-        user_progress = self.db_handler.get_user_progress(self.story_id)
-        self.user_text.delete(1.0, tk.END)
-        self.user_text.insert(tk.END, user_progress.strip())
+                if int(self.temp_text_widget.index('end-1c').split('.')[0]) < max_lines:
+                    current_page.append(line)
+                else:
+                    pages.append("\n".join(current_page))
+                    current_page = [line]
+
+            if current_page:
+                pages.append("\n".join(current_page))
+
+            self.pages = pages
+            self.parent.after(0, self.display_page, 0)
+
+        threading.Thread(target=process_chunks).start()
 
     def next_page(self):
-        self.save_user_progress()
         if self.current_page < len(self.pages) - 1:
             self.current_page += 1
             self.display_page(self.current_page)
 
     def previous_page(self):
-        self.save_user_progress()
         if self.current_page > 0:
             self.current_page -= 1
             self.display_page(self.current_page)
+
+    def display_page(self, page_number):
+        if 0 <= page_number < len(self.pages):
+            self.current_page = page_number
+            self.story_text.delete("1.0", tk.END)
+            self.story_text.insert(tk.END, self.pages[page_number].strip())
 
     def back_and_save(self):
         self.save_user_progress()
