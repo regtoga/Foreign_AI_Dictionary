@@ -1,0 +1,52 @@
+I am creating a App to help a user learn a language naturally though reading a book that is in their foreign language. Please use the code i provided as context to the problem, such as how to interface with the AI i have and also how to interact with a database. I want you to create an app with two main windows, on the left is the story that is imported from a text file, this pane needs to be paginated but linked to the right pane that takes up equal space on the screen. because the user is typing in the story and learning words, they will be needing to change the page so they can access the next batch of the story and words. Both pages should be the same font's so that they line up spacingly. Dont worry about this now but do know that in the future i will need a way to highlight words in different colors that the user has marked, struggling or known (this will be in the highlight menu as a check box for each word). There will also in the future need to be a temporary window that will pop up, not perminatly but, when the user highlights a word and clicked the "Get definition" button. Since this is hooked up to an AI this will entirely run off of the AI's power. If the user highlights a word and from the menu selects define the AI will injest the entire sentence around the word with a prompt like this "You are a Helpful AI that helps a user understand a language don't know yet, Please define the word "____" from the sentence: "____________"." The user should be able to ask follow up questions, and if the window that pops up becomes unfocused it will disappear until next the time user needs help. The Story, user witten story, and progress needs to be saved in a database in a table specific to that story. The User will then from a main menu be able to select a story they have already started or upload a new story. Leave room on this main menu page for other modes that i have planned. Thanks for your help
+
+Seems good, Please make this app and make shure that it works with different resolutions of monitors. Always provide ALL code every time you make a change and dont worry if it is extreamly long. do make it modular so that if it does get too long i can ask you to change only this entire method or that one.
+
+alright now from the main menu when you click Open Story it should ask the user to upload a story in the form of a txt file. there should not be a sample story. Please integrate the Highlight function so that the "get definition" button is useful.
+
+cool so, the get definition does recieve the words that are highlighted, but Instead of providing the context just around the word you are providing the ENTIRE file in the window. The AI is never asked anything and if it was there doesnt seem to be any place for the responce to go? If the word is not part of a sentence do not provide any context just provide the word. make a different prompt for the AI in this case.
+
+ok good work, get rid of the simulated stuff because i provided you in my initial code how to interface with my Ai, you run the command for Ollama to run the gemma3 model. i would also prefer if there wasnt a get definition button and when i highlight a word is just automatically pulles up a small idk "properties" window and that has the buttons for more options.
+
+Ok, so we seem to be missing the small windows that pops up when a word is highlighted, currently it just automatically defines the word highlighted which is kinda cool. Please fix that, also the original program was created so that the ai would work independently. i would really like if 1. you printed the prompt into the terminal so i can read it and 2. the entire program freezes right now while the AI is generating a responce i would like if it would slowly load in such as how you work.
+
+also i need the box to fill in asfast as possible right now it seems to have a set limit for how fast it can come back. also FYI it is impossible to interact with the input box to ask follow up questions because the windows just closes immediately
+
+ok so the follow question doesnt work for two reasons one it currently just prints to the terminal, and two the way we are currently interfacing with the Ai there is no way for it to know what i am asking about as it is like an ENTIRLY new query every time.  please fix this. Also the menu that comes up when a word is highlighted has been annoying me because it doesnt come up at the location of the cursor, please fix. Also you are abiously cheating the way you are loading in the words from the AI because it first generates its answer, the program recieves it, then finally it slowly loaded in onto the window. there should be ZERO delay from when the AI writes a word and it appears on the screen. if this is not fixable please have a temperary words in the output box that say "your query is being generated"
+
+also another thing has been anoying me. Once a story is loaded into the program it doesnt cut off the words at a certain point and put it on the next page. 1. i would like the page to be bigger to fit more words and 2. i need it to be paginated so the overflow goes to the next page.
+
+Also the cut off for the words doesnt seam to match up with the size of the box as you can see form this immage the words get banished to the next page way before the end of the box:
+
+PERFECT! now the output for the AI should automatically scroll down as it too many words are put into it. It should also have a scrollbar to signify that it does have more to see. also the follow up prompt isnt supplied to me in the terminal please fix
+
+looking good, now i have a problem where the text cutoff is to simple. If the words overflow they can get cutoff rig
+ht in the middle (like i just did) i need you to push the entire cutoff word to the next page. also i need you to do the calculations required to determine if a certain text will fit in the window because right now if there is just a bunch of carragereturn characters for example the entire screen could potentially be blank, and or if you scroll down very far you will find more text. just roll it over to the next page so we dont have to worry about scrolling. Next the context for the Ai is too simple aswell it seams to just keep going untill it finds the next period, but the problem with that is what if there are no periods, i cant just be having the entire text going into the ai for context, the context length is too short for that
+
+So that didnt fix it, is there not a real not scuffed way to essentially word rap from the bottom? how does word do it?
+
+Maby the problem is that The window is so small can you go ahead and make it scale with size of the screen like a real desktop app. it is also anoying that the main menu is an entirely different box, aswell as the popup.
+
+So the problem with this version is that it nolonger asks me to upload a story when i click any of the main menu buttons. Also it seams to bring up words anyway? but it is REALLY laggy and unpreformant idk why.
+
+what happend to the context menu that pops up at the location of the cursor after a word has been highlighted? did that menu also loose the temp text that should be there before the AI has responded with anything? please fix. also The main menu buttons are always visible there should be some sort of exit button to get back to the main menu where those buttons would be visable.
+
+so i couldnt find the navigation button and the main menu is never hidden so it oviously is still visible once a story is entered.
+There is a issue for large stories where the program freezes, and when it does it gets really small (the set resolution not full screen). If you are doing some complicated thing apon import 1. i would like to know what that is and 2. please try and optimize/ make this better is is actually unusable rn.
+Also i believe I defined before that the program should remember stories that have been previously imported before and also save the users progress at transcribing the story. please implement a load "save" menu opon clicking the open story button. i should be able to delete saves from here aswell.
+
+the Ai's chat box never filles up with words now, something you did just broke it. also it still is unable to open large stories. please fix.
+
+that fixed most of those issues, now i am still struggling with the program doing seemingly nothing after i upload too long of a story. I would recommend saving whatever changes you are making to the file's contents to the database to prevent on doing those calculations again later.
+So i am noticing that when i open the database we are saving a bunch of stories that i have uploaded there is currently no way of accessing any of those stories because you ahvent implemented the loadsave screen i was talking about. please do this.
+
+There is a new issue that none of the load screen UI elements dissapear after loading a save. Once inside a story you should give the user the option to rename it. The base name should be taken from the first 3 words in the story by default.
+
+open last story is good, open story should be renamed to Upload Story, The current Upload story button needs deleated.
+also The app is not currently auto saving the Users work inside the right pane when viewing a story. please i would prefer if it saved changes automatically, but just for good measure it also needs to save when any button is pressed that would lead away from that story thus forgetting the users work. this includes the big close button all programs have
+
+this is a good time for you to send ALL of the content from the 3 majorly edited files from top to bottom so that i can make shure we are on the same page because asfar as i can tell 1 that didnt work and none of the users work is saving and 2 when i pressed the close button in the to right (x) it froze. do provide ALL of the code inside story interface aswell
+
+Ok so there was two main problems that i had with this version:
+The saving seems to work? but it doesnt load? from the database into the users work pane? atleast i am not getting any errors for saving
+The error i am getting is that when i am not in a story (such as the main menu) i cannot close the program because i think it is trying to access stuff that doesnt exist in that menu such as the contents of the users work box.
